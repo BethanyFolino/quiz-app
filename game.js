@@ -3,6 +3,8 @@ const choices = Array.from(document.getElementsByClassName("choice-text"));
 const progressText = document.getElementById("progressText");
 const scoreText = document.getElementById("score");
 const progressBarFull = document.getElementById("progressBarFull");
+const loader = document.getElementById("loader");
+const game = document.getElementById("game");
 let currentQuestion = {};
 let acceptingAnswers = false;
 let score = 0;
@@ -11,26 +13,39 @@ let availableQuesions = [];
 
 let questions = [];
 
-fetch("https://opentdb.com/api.php?amount=10&category=12&difficulty=easy&type=multiple"
+fetch("https://opentdb.com/api.php?amount=10&category=9&type=multiple"
 ).then(res => {
     return res.json();
 }).then(loadedQuestions => {
     console.log(loadedQuestions.results);
     questions = loadedQuestions.results.map(loadedQuestion => {
+        const quoteRegex = /&quot;/g
+        const doubleQuoteRegex = /&ldquo;/g
+        const doubleQuoteRegex2 = /&rdquo;/g
+        const apostropheRegex = /&#039;/g
+        const apostropheRegex2 = /&rsquo;/g
+        const ampersandRegex = /&amp;/g
+        const ellipsisRegex = /&hellip;/g
+        const leftToRightRegex = /&lrm;/g
+        const softHyphenRegex = /&shy;/g
+        const umlautWithBigURegex = /&Uuml;/g
+        const acuteWithLittleERegex = /&eacute;/g
+        const acuteWithBigERegex = /&Eacute;/g
+        const acuteWithLittleORegex = /&oacute;/g
         const formattedQuestion = {
-            question: loadedQuestion.question
+            question: loadedQuestion.question.replace(apostropheRegex, "'").replace(apostropheRegex2, "'").replace(quoteRegex, '"').replace(doubleQuoteRegex, '"').replace(doubleQuoteRegex2, '"').replace(ampersandRegex, "&").replace(ellipsisRegex, "...").replace(leftToRightRegex, "").replace(softHyphenRegex, "-").replace(umlautWithBigURegex, "Ü").replace(acuteWithLittleERegex, "é").replace(acuteWithBigERegex, "É").replace(acuteWithLittleORegex, "ó")
         };
 
         const answerChoices = [... loadedQuestion.incorrect_answers];
         formattedQuestion.answer = Math.floor(Math.random()*3) + 1;
-        answerChoices.splice(formattedQuestion.answer -1, 0, loadedQuestion.correct_answer);
-        
+        answerChoices.splice(formattedQuestion.answer -1, 0, loadedQuestion.correct_answer.replace(apostropheRegex, "'").replace(apostropheRegex2, "'").replace(quoteRegex, '"').replace(doubleQuoteRegex, '"').replace(doubleQuoteRegex2, '"').replace(ampersandRegex, "&").replace(ellipsisRegex, "...").replace(leftToRightRegex, "").replace(softHyphenRegex, "-").replace(umlautWithBigURegex, "Ü").replace(acuteWithLittleERegex, "é").replace(acuteWithBigERegex, "É").replace(acuteWithLittleORegex, "ó"));
         answerChoices.forEach((choice, index) => {
-            formattedQuestion["choice" + (index+1)] = choice;
+            formattedQuestion["choice" + (index+1)] = choice.replace(apostropheRegex, "'").replace(apostropheRegex2, "'").replace(quoteRegex, '"').replace(doubleQuoteRegex, '"').replace(doubleQuoteRegex2, '"').replace(ampersandRegex, "&").replace(ellipsisRegex, "...").replace(leftToRightRegex, "").replace(softHyphenRegex, "-").replace(umlautWithBigURegex, "Ü").replace(acuteWithLittleERegex, "é").replace(acuteWithBigERegex, "É").replace(acuteWithLittleORegex, "ó");
         })
 
         return formattedQuestion;
     });
+    
     startGame();
 }).catch(err => {
     console.error(err);
@@ -45,6 +60,8 @@ startGame = () => {
   score = 0;
   availableQuesions = [...questions];
   getNewQuestion();
+  game.classList.remove("hidden");
+  loader.classList.add("hidden");
 };
 
 getNewQuestion = () => {
